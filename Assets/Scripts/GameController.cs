@@ -1,16 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private Model playerData = new Model();
     [SerializeField] private Minigame game = new Minigame();
-    
-
+     public static GameController _instance;
+	public Model _playerData {get {return playerData;}}
+	public Minigame _game {get{return game;}}
+	public DisplayScript _display;
+	public InputField input;
+	
+	private void Awake()
+	{
+		_instance = this;
+		_display = GetComponent<DisplayScript>();
+	}
     private void Start()
     {
         game.chance = game.setChance;
+		_display.InteractableButton(false);
     }
 
     void Update()
@@ -48,11 +58,17 @@ public class GameController : MonoBehaviour
                             Debug.Log("Set guessed correctly, streak x" + game.streak);
                             game.rewards = game.pool * game.streak;
                             game.currentCorrectInSet = 0;
+
+							 _display.InteractableButton(true);
+
+
                         }
                     }
                     else // Guessed incorrectly
                     {
                         Debug.LogWarning("Button incorrect, streak x0");
+
+						_display.InteractableButton(false);
                         game.rewards = 0;
                         game.pool = 0;
                         game.streak = 0;
@@ -80,21 +96,56 @@ public class GameController : MonoBehaviour
             game.hasPool = false;
             game.claimedReward = false;
         }
-    }
+		if (game.bet <= 0 || game.hasPool)
+		{
+				 _display.BetButtonInteract(false);
+		}
+		else
+		{
+				 _display.BetButtonInteract(true);
+		}
+		if (game.rewards > 0)
+		 {
+				_display.ClaimButtonInteract(true);
+		 }
+		 else
+		 {
+				 _display.ClaimButtonInteract(false);
+		 }
 
+    }
     public void bet()
     {
         game.playerBetted = true;
+		_display.InteractableButton(true);
     }
 
     public void guess()
     {
         game.guessed = true;
+    
+		if (game.bet > 0)
+		{
+        game.playerBetted = true;
+		_display.InteractableButton(true);
+		}
     }
-
+    public void guess(Button button)
+    {
+        game.guessed = true;
+		 if (game.currentCorrectInSet < game.correctNeededInSet)
+		 {
+				button.interactable = false;
+		 }
+    }
     public void claimReward()
     {
         game.hasPool = false;
         game.claimedReward = true;
+	 _display.InteractableButton(false);
     }
+	public void PlaceBet(InputField input)
+	{
+		game.bet = int.Parse(input.text);
+	}
 }
