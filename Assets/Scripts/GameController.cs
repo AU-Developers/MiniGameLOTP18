@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
 	public Model _playerData {get {return playerData;}}
 	public Minigame _game {get{return game;}}
 	public DisplayScript _display;
+	public InputField input;
 	private void Awake()
 	{
 		_instance = this;
@@ -131,8 +132,8 @@ public class GameController : MonoBehaviour
         game.claimedReward = true;
 	 _display.InteractableButton(false);
     }
-	public void PlaceBet(int betvalue)
+	public void PlaceBet(InputField input)
 	{
-		game.bet = betvalue;
+		game.bet = int.Parse(input.text);
 	}
 }
